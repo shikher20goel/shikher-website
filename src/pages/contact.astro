@@ -1,0 +1,41 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Chatbot from '../components/Chatbot.astro';
+import { EMAIL, GITHUB_URL, LINKEDIN_URL, SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Contact | ${SITE_TITLE}`} description="Get in touch with Shikher Goel." />
+		<style>
+			.wrap { max-width: 640px; margin: 0 auto; padding: 2em 1em; }
+			.links { list-style: none; padding: 0; margin: 1.5em 0; }
+			.links li { padding: 0.6em 0; border-bottom: 1px solid rgb(var(--gray-light)); }
+			.links li:last-child { border-bottom: none; }
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="wrap">
+				<h1>Contact</h1>
+				<p>
+					Want to chat about a project, a role, or just say hi? Here's where to find me:
+				</p>
+				<ul class="links">
+					<li><strong>Email:</strong> <a href={`mailto:${EMAIL}`}>{EMAIL}</a></li>
+					<li><strong>GitHub:</strong> <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub profile</a></li>
+					<li><strong>LinkedIn:</strong> <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn profile</a></li>
+				</ul>
+				<p>
+					Or use the chatbot in the corner for quick questions about me and my work.
+				</p>
+			</div>
+		</main>
+		<Footer />
+		<Chatbot />
+	</body>
+</html>

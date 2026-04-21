@@ -1,0 +1,63 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Chatbot from '../components/Chatbot.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`About | ${SITE_TITLE}`} description="About Shikher Goel — engineer, builder, and writer." />
+		<style>
+			.wrap { max-width: 720px; margin: 0 auto; padding: 2em 1em; }
+			.chips { display: flex; flex-wrap: wrap; gap: 0.5em; margin: 1em 0 2em; }
+			.chip {
+				background: rgb(var(--gray-light));
+				color: rgb(var(--gray-dark));
+				padding: 0.3em 0.8em;
+				border-radius: 999px;
+				font-size: 0.85em;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="wrap">
+				<h1>About</h1>
+				<p>
+					I'm a software engineer passionate about building thoughtful products.
+					I enjoy turning complex problems into simple, elegant solutions, and
+					I'm always learning something new.
+				</p>
+				<p>
+					I write here about software, systems, and side projects — the
+					interesting bits from whatever I'm building or learning.
+				</p>
+
+				<h2>Skills</h2>
+				<div class="chips">
+					<span class="chip">JavaScript</span>
+					<span class="chip">TypeScript</span>
+					<span class="chip">Python</span>
+					<span class="chip">React</span>
+					<span class="chip">Node.js</span>
+					<span class="chip">SQL</span>
+					<span class="chip">Git</span>
+					<span class="chip">System Design</span>
+					<span class="chip">Problem Solving</span>
+				</div>
+
+				<h2>Get in touch</h2>
+				<p>
+					The fastest way to reach me is via the <a href="/contact">contact page</a>,
+					or try the chatbot in the corner — it'll answer basic questions about me.
+				</p>
+			</div>
+		</main>
+		<Footer />
+		<Chatbot />
+	</body>
+</html>

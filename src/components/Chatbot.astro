@@ -1,0 +1,356 @@
+---
+// Floating chatbot widget. Renders on every page that imports this component.
+// - Talks to /api/chat (Cloudflare Pages Function) for LLM-powered replies
+// - Falls back to a keyword-matching answer bank if the API is unreachable
+---
+
+<button id="chat-toggle" class="chat-toggle" aria-label="Open chat" type="button">
+	<span aria-hidden="true">&#128172;</span>
+</button>
+
+<div id="chat-window" class="chat-window" role="dialog" aria-label="Chat with Shikher's bot">
+	<div class="chat-header">
+		<div>
+			<strong>Ask about Shikher</strong>
+			<div class="chat-subtitle">Type a question below</div>
+		</div>
+		<button id="chat-close" class="chat-close" aria-label="Close chat" type="button">&times;</button>
+	</div>
+	<div id="chat-messages" class="chat-messages"></div>
+	<form id="chat-form" class="chat-form">
+		<label for="chat-input" class="sr-only">Your question</label>
+		<input id="chat-input" type="text" placeholder="Ask me anything about Shikher..." autocomplete="off" />
+		<button type="submit" aria-label="Send">&#10148;</button>
+	</form>
+</div>
+
+<style>
+	:root {
+		--chat-accent: #6c8cff;
+		--chat-accent-2: #9b5cff;
+	}
+	.chat-toggle {
+		position: fixed;
+		bottom: 24px;
+		right: 24px;
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		border: none;
+		background: linear-gradient(135deg, var(--chat-accent), var(--chat-accent-2));
+		color: white;
+		font-size: 24px;
+		cursor: pointer;
+		box-shadow: 0 8px 24px rgba(108, 140, 255, 0.4);
+		z-index: 999;
+		transition: transform 0.2s ease;
+	}
+	.chat-toggle:hover { transform: scale(1.08); }
+
+	.chat-window {
+		position: fixed;
+		bottom: 94px;
+		right: 24px;
+		width: 360px;
+		max-width: calc(100vw - 32px);
+		height: 480px;
+		max-height: calc(100vh - 120px);
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 16px;
+		display: none;
+		flex-direction: column;
+		overflow: hidden;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+		z-index: 999;
+		color: rgb(var(--gray-dark));
+	}
+	.chat-window.open { display: flex; }
+
+	.chat-header {
+		padding: 14px 18px;
+		background: linear-gradient(135deg, var(--chat-accent), var(--chat-accent-2));
+		color: white;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.chat-subtitle { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+	.chat-close {
+		background: transparent;
+		border: none;
+		color: white;
+		font-size: 24px;
+		cursor: pointer;
+		line-height: 1;
+	}
+
+	.chat-messages {
+		flex: 1;
+		overflow-y: auto;
+		padding: 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	.msg {
+		padding: 10px 14px;
+		border-radius: 14px;
+		max-width: 85%;
+		font-size: 14px;
+		line-height: 1.45;
+		word-wrap: break-word;
+	}
+	.msg.bot {
+		background: rgb(var(--gray-light));
+		color: rgb(var(--gray-dark));
+		align-self: flex-start;
+		border-bottom-left-radius: 4px;
+	}
+	.msg.user {
+		background: linear-gradient(135deg, var(--chat-accent), var(--chat-accent-2));
+		color: white;
+		align-self: flex-end;
+		border-bottom-right-radius: 4px;
+	}
+
+	.chat-form {
+		display: flex;
+		border-top: 1px solid rgb(var(--gray-light));
+		padding: 10px;
+		gap: 8px;
+	}
+	.chat-form input {
+		flex: 1;
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		color: rgb(var(--gray-dark));
+		padding: 10px 14px;
+		border-radius: 20px;
+		font-size: 14px;
+		outline: none;
+		font-family: inherit;
+	}
+	.chat-form input:focus { border-color: var(--chat-accent); }
+	.chat-form button {
+		background: linear-gradient(135deg, var(--chat-accent), var(--chat-accent-2));
+		color: white;
+		border: none;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		cursor: pointer;
+		font-size: 16px;
+	}
+	.chat-form input:disabled { opacity: 0.6; }
+
+	.msg .suggest {
+		display: block;
+		margin-top: 6px;
+		color: var(--chat-accent);
+		text-decoration: none;
+	}
+	.msg .suggest:hover { text-decoration: underline; }
+
+	.msg.typing {
+		display: flex;
+		gap: 4px;
+		padding: 14px 16px;
+	}
+	.msg.typing .dot {
+		width: 6px;
+		height: 6px;
+		background: rgb(var(--gray));
+		border-radius: 50%;
+		animation: typing-bounce 1.2s infinite ease-in-out;
+	}
+	.msg.typing .dot:nth-child(2) { animation-delay: 0.15s; }
+	.msg.typing .dot:nth-child(3) { animation-delay: 0.3s; }
+	@keyframes typing-bounce {
+		0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+		40% { transform: translateY(-4px); opacity: 1; }
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+</style>
+
+<script>
+	const USE_API = true;
+
+	const knowledgeBase = [
+		{ keywords: ['name', 'who', 'yourself', 'introduce', 'about'], answer: "I'm Shikher Goel — a software engineer who loves building thoughtful products and solving complex problems." },
+		{ keywords: ['skill', 'skills', 'tech', 'stack', 'technology', 'language', 'know'], answer: "My core skills are JavaScript, TypeScript, Python, React, Node.js, SQL, and system design. I'm always picking up new tools." },
+		{ keywords: ['project', 'projects', 'built', 'build', 'portfolio'], answer: "I've worked on a few projects — check out the Projects page for summaries. Ask me about any of them by name!" },
+		{ keywords: ['experience', 'job', 'work', 'career', 'company', 'role'], answer: "I've got experience across full-stack development — frontend, backend, and everything in between." },
+		{ keywords: ['education', 'school', 'college', 'university', 'degree', 'study'], answer: "I studied computer science and have continued learning ever since — self-study, side projects, and building things." },
+		{ keywords: ['contact', 'reach', 'email', 'hire', 'connect', 'message'], answer: "You can reach me at shikher20goel@gmail.com — or visit the Contact page for more links." },
+		{ keywords: ['hobby', 'hobbies', 'fun', 'interest', 'free time'], answer: 'Outside of code, I enjoy reading, exploring new ideas, and tinkering with side projects.' },
+		{ keywords: ['location', 'where', 'based', 'live', 'city', 'country'], answer: "I'm based remotely — open to conversations regardless of timezone." },
+		{ keywords: ['blog', 'post', 'article', 'write', 'writing'], answer: "I write on the blog about software, systems, and side projects — check the Blog page for recent posts." },
+		{ keywords: ['hello', 'hi', 'hey', 'yo', 'greetings'], answer: 'Hey there! Ask me anything about Shikher — skills, projects, blog, or how to get in touch.' },
+		{ keywords: ['thanks', 'thank you', 'appreciate'], answer: "You're welcome! Anything else you'd like to know?" },
+		{ keywords: ['bye', 'goodbye', 'see you', 'later'], answer: 'Thanks for stopping by! Feel free to reach out anytime.' },
+	];
+
+	const fallbackAnswer =
+		"I don't have a great answer for that yet — but you can email Shikher at shikher20goel@gmail.com, or try asking about skills, projects, or experience.";
+
+	const suggestedQuestions = [
+		'What are your skills?',
+		'Tell me about your projects',
+		'How can I contact you?',
+	];
+
+	const conversation: { role: 'user' | 'assistant'; content: string }[] = [];
+
+	function findKeywordAnswer(question: string): string {
+		const q = question.toLowerCase();
+		let best = { score: 0, answer: '' };
+		for (const entry of knowledgeBase) {
+			let score = 0;
+			for (const kw of entry.keywords) {
+				if (q.includes(kw)) score += kw.length;
+			}
+			if (score > best.score) best = { score, answer: entry.answer };
+		}
+		return best.answer || fallbackAnswer;
+	}
+
+	async function askLLM(userText: string): Promise<string> {
+		conversation.push({ role: 'user', content: userText });
+
+		const res = await fetch('/api/chat', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ messages: conversation }),
+		});
+
+		if (!res.ok) {
+			const err = await res.json().catch(() => ({}));
+			throw new Error((err as { error?: string }).error || `Request failed (${res.status})`);
+		}
+
+		const data = (await res.json()) as { reply?: string };
+		const reply = (data.reply || '').trim();
+		if (!reply) throw new Error('Empty reply');
+		conversation.push({ role: 'assistant', content: reply });
+		return reply;
+	}
+
+	function appendMessage(text: string, who: 'user' | 'bot'): HTMLElement {
+		const messages = document.getElementById('chat-messages')!;
+		const div = document.createElement('div');
+		div.className = 'msg ' + who;
+		div.textContent = text;
+		messages.appendChild(div);
+		messages.scrollTop = messages.scrollHeight;
+		return div;
+	}
+
+	function appendTyping(): HTMLElement {
+		const messages = document.getElementById('chat-messages')!;
+		const div = document.createElement('div');
+		div.className = 'msg bot typing';
+		for (let i = 0; i < 3; i++) {
+			const dot = document.createElement('span');
+			dot.className = 'dot';
+			div.appendChild(dot);
+		}
+		messages.appendChild(div);
+		messages.scrollTop = messages.scrollHeight;
+		return div;
+	}
+
+	function appendSuggestions() {
+		const messages = document.getElementById('chat-messages')!;
+		const wrap = document.createElement('div');
+		wrap.className = 'msg bot';
+		const intro = document.createElement('span');
+		intro.textContent = 'Try one of these:';
+		wrap.appendChild(intro);
+		for (const q of suggestedQuestions) {
+			const a = document.createElement('a');
+			a.href = '#';
+			a.className = 'suggest';
+			a.textContent = '› ' + q;
+			a.addEventListener('click', (e) => {
+				e.preventDefault();
+				const input = document.getElementById('chat-input') as HTMLInputElement;
+				input.value = q;
+				submitChat();
+			});
+			wrap.appendChild(a);
+		}
+		messages.appendChild(wrap);
+		messages.scrollTop = messages.scrollHeight;
+	}
+
+	async function submitChat() {
+		const input = document.getElementById('chat-input') as HTMLInputElement;
+		const text = input.value.trim();
+		if (!text) return;
+
+		appendMessage(text, 'user');
+		input.value = '';
+		input.disabled = true;
+
+		const typing = appendTyping();
+
+		try {
+			let reply: string;
+			if (USE_API) {
+				try {
+					reply = await askLLM(text);
+				} catch (e) {
+					console.warn('API unavailable, using keyword fallback:', (e as Error).message);
+					reply = findKeywordAnswer(text);
+				}
+			} else {
+				reply = findKeywordAnswer(text);
+			}
+			typing.remove();
+			appendMessage(reply, 'bot');
+		} catch (e) {
+			typing.remove();
+			appendMessage('Sorry, something went wrong. Try again?', 'bot');
+		} finally {
+			input.disabled = false;
+			input.focus();
+		}
+	}
+
+	function toggleChat() {
+		const win = document.getElementById('chat-window')!;
+		const isOpen = win.classList.toggle('open');
+		if (isOpen && !win.dataset.greeted) {
+			appendMessage(
+				"Hi! I'm Shikher's assistant. Ask me anything about his skills, projects, or background.",
+				'bot',
+			);
+			appendSuggestions();
+			win.dataset.greeted = '1';
+			setTimeout(() => {
+				const input = document.getElementById('chat-input') as HTMLInputElement | null;
+				input?.focus();
+			}, 100);
+		}
+	}
+
+	// Wire up once on load (Astro scripts run once per page)
+	document.getElementById('chat-toggle')?.addEventListener('click', toggleChat);
+	document.getElementById('chat-close')?.addEventListener('click', toggleChat);
+	document.getElementById('chat-form')?.addEventListener('submit', (e) => {
+		e.preventDefault();
+		submitChat();
+	});
+</script>

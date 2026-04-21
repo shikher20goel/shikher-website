@@ -1,0 +1,75 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Chatbot from '../components/Chatbot.astro';
+import { SITE_TITLE } from '../consts';
+
+const projects = [
+	{
+		name: 'Project One',
+		description: 'A short description of something I built, the stack it used, and the problem it solved.',
+		link: '#',
+	},
+	{
+		name: 'Project Two',
+		description: 'Another project — what it does, who it helps, and what I learned along the way.',
+		link: '#',
+	},
+	{
+		name: 'Project Three',
+		description: 'An experiment or side-project that pushed me to try a new tool or technique.',
+		link: '#',
+	},
+];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Projects | ${SITE_TITLE}`} description="Projects by Shikher Goel." />
+		<style>
+			.wrap { max-width: 960px; margin: 0 auto; padding: 2em 1em; }
+			.cards {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+				gap: 1em;
+				margin-top: 1em;
+			}
+			.card {
+				background: white;
+				border: 1px solid rgb(var(--gray-light));
+				padding: 1.2em;
+				border-radius: 10px;
+				transition: transform 0.15s ease, border-color 0.15s ease;
+			}
+			.card:hover {
+				transform: translateY(-2px);
+				border-color: var(--accent);
+			}
+			.card h3 { margin: 0 0 0.3em; }
+			.card p { margin: 0 0 0.6em; color: rgb(var(--gray-dark)); }
+			.card a { font-size: 0.9em; }
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="wrap">
+				<h1>Projects</h1>
+				<p>A selection of things I've built — click through for more on each.</p>
+				<div class="cards">
+					{projects.map((p) => (
+						<article class="card">
+							<h3>{p.name}</h3>
+							<p>{p.description}</p>
+							<a href={p.link}>Learn more &rsaquo;</a>
+						</article>
+					))}
+				</div>
+			</div>
+		</main>
+		<Footer />
+		<Chatbot />
+	</body>
+</html>

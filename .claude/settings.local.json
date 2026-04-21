@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(npm --version)",
+      "Bash(npm create *)",
+      "Bash(shopt -s dotglob)",
+      "Bash(mv * ..)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(git config *)",
+      "Bash(winget --version)"
+    ]
+  }
+}

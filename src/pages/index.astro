@@ -1,0 +1,147 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import Chatbot from '../components/Chatbot.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+).slice(0, 3);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			.hero {
+				padding: 4em 1em 3em;
+				text-align: center;
+				background: linear-gradient(180deg, rgba(var(--gray-light), 0.5), transparent);
+				border-bottom: 1px solid rgb(var(--gray-light));
+				margin-bottom: 2em;
+			}
+			.eyebrow {
+				color: rgb(var(--gray));
+				letter-spacing: 2px;
+				text-transform: uppercase;
+				font-size: 0.8em;
+				margin: 0 0 0.5em;
+			}
+			.hero h1 {
+				font-size: 2.5em;
+				margin: 0 0 0.3em;
+				line-height: 1.1;
+			}
+			.tagline {
+				color: rgb(var(--gray));
+				font-size: 1.1em;
+				margin: 0 0 1.5em;
+			}
+			.cta {
+				display: flex;
+				gap: 0.75em;
+				justify-content: center;
+				flex-wrap: wrap;
+			}
+			.btn {
+				display: inline-block;
+				padding: 0.6em 1.2em;
+				border-radius: 6px;
+				text-decoration: none;
+				font-weight: 500;
+				font-size: 0.95em;
+				transition: transform 0.15s ease;
+			}
+			.btn:hover {
+				transform: translateY(-1px);
+			}
+			.btn-primary {
+				background: var(--accent);
+				color: white;
+			}
+			.btn-ghost {
+				background: transparent;
+				color: var(--accent);
+				border: 1px solid var(--accent);
+			}
+			.recent {
+				margin-top: 2em;
+			}
+			.recent h2 {
+				margin-bottom: 0.5em;
+			}
+			.post-list {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+			.post-list li {
+				padding: 1em 0;
+				border-bottom: 1px solid rgb(var(--gray-light));
+			}
+			.post-list li:last-child {
+				border-bottom: none;
+			}
+			.post-list a {
+				text-decoration: none;
+			}
+			.post-list h3 {
+				margin: 0 0 0.2em;
+			}
+			.post-list .date {
+				color: rgb(var(--gray));
+				font-size: 0.85em;
+			}
+			.post-list .desc {
+				margin: 0.3em 0 0;
+				color: rgb(var(--gray-dark));
+			}
+			.empty {
+				color: rgb(var(--gray));
+				font-style: italic;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero">
+				<p class="eyebrow">Hello, I'm</p>
+				<h1>Shikher Goel</h1>
+				<p class="tagline">Engineer &middot; Builder &middot; Problem solver</p>
+				<div class="cta">
+					<a class="btn btn-primary" href="/blog">Read the blog</a>
+					<a class="btn btn-ghost" href="/about">About me</a>
+				</div>
+			</section>
+
+			<section class="recent">
+				<h2>Recent posts</h2>
+				{posts.length === 0 ? (
+					<p class="empty">No posts yet — check back soon.</p>
+				) : (
+					<ul class="post-list">
+						{posts.map((post) => (
+							<li>
+								<a href={`/blog/${post.id}/`}>
+									<h3>{post.data.title}</h3>
+									<p class="date"><FormattedDate date={post.data.pubDate} /></p>
+									<p class="desc">{post.data.description}</p>
+								</a>
+							</li>
+						))}
+					</ul>
+				)}
+				<p style="margin-top: 1.5em;">
+					<a href="/blog">See all posts &rsaquo;</a>
+				</p>
+			</section>
+		</main>
+		<Footer />
+		<Chatbot />
+	</body>
+</html>
