@@ -579,42 +579,12 @@ const credentials = [
 			.videos-empty a { color: var(--accent); font-weight: 600; }
 
 			/* ========================================================
-			   CLOSING CTA STRIP
-			   ======================================================== */
-			.closer {
-				max-width: 1180px;
-				margin: 2em auto 5em;
-				padding: 0 1.5em;
-			}
-			.closer-inner {
-				text-align: center;
-				padding: 3em 2em;
-				background:
-					radial-gradient(ellipse at top right, rgba(155, 92, 255, 0.08), transparent 60%),
-					radial-gradient(ellipse at bottom left, rgba(35, 55, 255, 0.08), transparent 60%),
-					rgba(255, 255, 255, 0.7);
-				border: 1px solid rgb(var(--gray-light));
-				border-radius: 20px;
-				backdrop-filter: blur(10px);
-			}
-			.closer h3 {
-				font-size: clamp(1.5em, 3vw, 2em);
-				margin: 0 0 0.4em;
-				letter-spacing: -0.02em;
-			}
-			.closer p {
-				color: rgb(var(--gray));
-				margin: 0 0 1.5em;
-				font-size: 1.05em;
-			}
-
-			/* ========================================================
 			   SMALL SCREENS
 			   ======================================================== */
 			@media (max-width: 600px) {
 				.hero { padding: 4em 1em 3em; }
 				.featured { padding: 3em 1em 2em; }
-				.closer-inner { padding: 2em 1.2em; }
+				.videos-section { padding: 2em 1em 1em; }
 			}
 
 			/* Respect reduced motion */
@@ -766,17 +736,6 @@ const credentials = [
 				)}
 			</section>
 
-			<!-- Closing CTA -->
-			<section class="closer">
-				<div class="closer-inner">
-					<h3>Let's talk shop.</h3>
-					<p>Working on something interesting at the edge of AI, enterprise architecture, or Salesforce? I'd love to hear about it.</p>
-					<div class="cta">
-						<a class="btn btn-primary" href="/contact">Get in touch</a>
-						<a class="btn btn-ghost" href="/projects">See projects</a>
-					</div>
-				</div>
-			</section>
 		</main>
 		<Footer />
 		<Chatbot />
