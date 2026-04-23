@@ -16,7 +16,9 @@
       "WebFetch(domain:shikhergoel.blogspot.com)",
       "WebFetch(domain:www.bing.com)",
       "WebFetch(domain:duckduckgo.com)",
-      "WebFetch(domain:html.duckduckgo.com)"
+      "WebFetch(domain:html.duckduckgo.com)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebFetch(domain:www.salesforce.com)"
     ]
   }
 }

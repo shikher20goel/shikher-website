@@ -3,59 +3,182 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import Chatbot from '../components/Chatbot.astro';
-import { SITE_TITLE } from '../consts';
+import { MEMBERSHIPS, SITE_TITLE, TRAILBLAZER_URL, FORBES_URL } from '../consts';
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`About | ${SITE_TITLE}`} description="About Shikher Goel — engineer, builder, and writer." />
+		<BaseHead title={`About | ${SITE_TITLE}`} description="About Shikher Goel — enterprise architect, AI practitioner, Forbes Tech Council member." />
 		<style>
-			.wrap { max-width: 720px; margin: 0 auto; padding: 2em 1em; }
-			.chips { display: flex; flex-wrap: wrap; gap: 0.5em; margin: 1em 0 2em; }
+			main.about-page { width: 100%; max-width: 760px; margin: 0 auto; padding: 3em 1.5em; }
+
+			.head { margin-bottom: 2.5em; }
+			.head h1 {
+				font-size: clamp(2em, 4.5vw, 2.6em);
+				margin: 0 0 0.3em;
+				letter-spacing: -0.02em;
+			}
+			.head .subtitle {
+				color: rgb(var(--gray));
+				font-size: 1.1em;
+				margin: 0;
+			}
+
+			section.block { margin: 2.5em 0; }
+			section.block h2 {
+				font-size: 1.3em;
+				font-weight: 700;
+				letter-spacing: -0.01em;
+				margin: 0 0 0.8em;
+				padding-bottom: 0.4em;
+				border-bottom: 2px solid rgb(var(--gray-light));
+			}
+			section.block p { margin: 0 0 1em; }
+			section.block p:last-child { margin-bottom: 0; }
+
+			.chips { display: flex; flex-wrap: wrap; gap: 0.4em; margin: 0.5em 0 0; }
 			.chip {
 				background: rgb(var(--gray-light));
 				color: rgb(var(--gray-dark));
 				padding: 0.3em 0.8em;
 				border-radius: 999px;
-				font-size: 0.85em;
+				font-size: 0.82em;
+				font-weight: 500;
+			}
+
+			.memberships-list {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 0.7em;
+				margin: 0.5em 0 0;
+			}
+			.membership-item {
+				display: block;
+				padding: 0.9em 1em;
+				background: white;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 10px;
+				text-decoration: none;
+				color: inherit;
+				transition: all 0.2s ease;
+			}
+			.membership-item:hover {
+				border-color: var(--accent);
+				transform: translateY(-2px);
+			}
+			.membership-item .org {
+				font-size: 0.72em;
+				color: rgb(var(--gray));
+				text-transform: uppercase;
+				letter-spacing: 1.2px;
+				font-weight: 600;
+				margin-bottom: 0.1em;
+			}
+			.membership-item .role {
+				font-size: 0.95em;
+				font-weight: 600;
+				color: rgb(var(--black));
+				margin: 0;
+			}
+
+			.quick-links {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.6em;
+				margin-top: 0.5em;
+			}
+			.quick-link {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4em;
+				padding: 0.55em 1em;
+				background: white;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 999px;
+				font-size: 0.88em;
+				font-weight: 500;
+				text-decoration: none;
+				color: rgb(var(--gray-dark));
+				transition: all 0.2s ease;
+			}
+			.quick-link:hover {
+				border-color: var(--accent);
+				color: var(--accent);
+				transform: translateY(-1px);
 			}
 		</style>
 	</head>
 	<body>
 		<Header />
-		<main>
-			<div class="wrap">
+		<main class="about-page">
+			<div class="head">
 				<h1>About</h1>
-				<p>
-					I'm a software engineer passionate about building thoughtful products.
-					I enjoy turning complex problems into simple, elegant solutions, and
-					I'm always learning something new.
-				</p>
-				<p>
-					I write here about software, systems, and side projects — the
-					interesting bits from whatever I'm building or learning.
-				</p>
-
-				<h2>Skills</h2>
-				<div class="chips">
-					<span class="chip">JavaScript</span>
-					<span class="chip">TypeScript</span>
-					<span class="chip">Python</span>
-					<span class="chip">React</span>
-					<span class="chip">Node.js</span>
-					<span class="chip">SQL</span>
-					<span class="chip">Git</span>
-					<span class="chip">System Design</span>
-					<span class="chip">Problem Solving</span>
-				</div>
-
-				<h2>Get in touch</h2>
-				<p>
-					The fastest way to reach me is via the <a href="/contact">contact page</a>,
-					or try the chatbot in the corner — it'll answer basic questions about me.
+				<p class="subtitle">
+					Enterprise architect, AI practitioner, and writer — working where Salesforce, AWS, and AI meet production reality.
 				</p>
 			</div>
+
+			<section class="block">
+				<h2>What I do</h2>
+				<p>
+					I'm an enterprise architect focused on the space where large-scale platforms (Salesforce, AWS) meet the newer wave of AI — LLMs, agents, and the protocols holding them together. My day-to-day is
+					designing systems that actually ship: the trade-offs between elegance and the constraints real organizations work under.
+				</p>
+				<p>
+					I write regularly on <a href="/writing">this site</a>, Medium, and for the Forbes Technology Council. You'll also find <a href="/videos">talks and walkthroughs on YouTube</a>.
+				</p>
+			</section>
+
+			<section class="block">
+				<h2>Credentials at a glance</h2>
+				<p>
+					<strong>19× Salesforce Certified</strong> (Application & System Architect, CTA Candidate) · <strong>2× AWS Certified</strong> · <a href="/credentials">full list →</a>
+				</p>
+			</section>
+
+			<section class="block">
+				<h2>Memberships & fellowships</h2>
+				<div class="memberships-list">
+					{MEMBERSHIPS.map((m) => {
+						const Tag = m.url ? 'a' : 'div';
+						return (
+							<Tag
+								class="membership-item"
+								href={m.url}
+								target={m.url ? '_blank' : undefined}
+								rel={m.url ? 'noopener noreferrer' : undefined}
+							>
+								<p class="org">{m.org}</p>
+								<p class="role">{m.role}</p>
+							</Tag>
+						);
+					})}
+				</div>
+			</section>
+
+			<section class="block">
+				<h2>Technical skills</h2>
+				<div class="chips">
+					<span class="chip">Salesforce (Sales, Service, Experience, Data, Agentforce)</span>
+					<span class="chip">Apex · LWC · Flow</span>
+					<span class="chip">AWS (Solution Architect)</span>
+					<span class="chip">Enterprise Integration</span>
+					<span class="chip">System Design</span>
+					<span class="chip">LLM Agents · MCP</span>
+					<span class="chip">Prompt & Context Engineering</span>
+					<span class="chip">JavaScript · TypeScript · Python</span>
+				</div>
+			</section>
+
+			<section class="block">
+				<h2>Find me elsewhere</h2>
+				<div class="quick-links">
+					<a class="quick-link" href={FORBES_URL} target="_blank" rel="noopener noreferrer">Forbes Tech Council</a>
+					<a class="quick-link" href={TRAILBLAZER_URL} target="_blank" rel="noopener noreferrer">Salesforce Trailblazer</a>
+					<a class="quick-link" href="/contact">Contact page</a>
+				</div>
+			</section>
 		</main>
 		<Footer />
 		<Chatbot />

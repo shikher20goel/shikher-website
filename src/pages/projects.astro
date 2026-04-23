@@ -1,73 +1,165 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import Chatbot from '../components/Chatbot.astro';
-import { SITE_TITLE } from '../consts';
+import { LINKEDIN_URL, SITE_TITLE } from '../consts';
 
-const projects = [
-	{
-		name: 'Project One',
-		description: 'A short description of something I built, the stack it used, and the problem it solved.',
-		link: '#',
-	},
-	{
-		name: 'Project Two',
-		description: 'Another project — what it does, who it helps, and what I learned along the way.',
-		link: '#',
-	},
-	{
-		name: 'Project Three',
-		description: 'An experiment or side-project that pushed me to try a new tool or technique.',
-		link: '#',
-	},
-];
+const projectsRaw = await getCollection('projects').catch(() => []);
+
+const projects = projectsRaw.sort((a, b) => {
+	// Featured first, then by title
+	if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+	return a.data.title.localeCompare(b.data.title);
+});
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`Projects | ${SITE_TITLE}`} description="Projects by Shikher Goel." />
+		<BaseHead title={`Projects | ${SITE_TITLE}`} description="Projects and work highlights by Shikher Goel." />
 		<style>
-			.wrap { max-width: 960px; margin: 0 auto; padding: 2em 1em; }
-			.cards {
+			main.projects-page { width: 100%; max-width: 1020px; margin: 0 auto; padding: 3em 1.5em; }
+
+			.head { text-align: center; margin-bottom: 3em; }
+			.head h1 {
+				font-size: clamp(2em, 4.5vw, 2.6em);
+				margin: 0 0 0.3em;
+				letter-spacing: -0.02em;
+			}
+			.head p { color: rgb(var(--gray)); margin: 0; font-size: 1.05em; }
+
+			.grid {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-				gap: 1em;
-				margin-top: 1em;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 1.2em;
 			}
 			.card {
+				display: flex;
+				flex-direction: column;
+				padding: 1.5em;
 				background: white;
 				border: 1px solid rgb(var(--gray-light));
-				padding: 1.2em;
-				border-radius: 10px;
-				transition: transform 0.15s ease, border-color 0.15s ease;
+				border-radius: 14px;
+				text-decoration: none;
+				color: inherit;
+				transition: all 0.25s ease;
+				position: relative;
+			}
+			.card.featured { border-color: var(--accent); }
+			.card.featured::before {
+				content: 'Featured';
+				position: absolute;
+				top: -10px;
+				right: 14px;
+				background: linear-gradient(135deg, #2337ff, #9b5cff);
+				color: white;
+				font-size: 0.7em;
+				font-weight: 700;
+				padding: 0.3em 0.8em;
+				border-radius: 999px;
+				letter-spacing: 0.5px;
+				text-transform: uppercase;
 			}
 			.card:hover {
-				transform: translateY(-2px);
-				border-color: var(--accent);
+				transform: translateY(-3px);
+				box-shadow: 0 10px 28px -8px rgba(35, 55, 255, 0.18);
 			}
-			.card h3 { margin: 0 0 0.3em; }
-			.card p { margin: 0 0 0.6em; color: rgb(var(--gray-dark)); }
-			.card a { font-size: 0.9em; }
+			.card h3 {
+				margin: 0 0 0.3em;
+				font-size: 1.15em;
+				font-weight: 700;
+				letter-spacing: -0.01em;
+				color: rgb(var(--black));
+			}
+			.card .role {
+				color: var(--accent);
+				font-size: 0.85em;
+				margin: 0 0 0.6em;
+				font-weight: 500;
+			}
+			.card p.desc {
+				margin: 0 0 0.8em;
+				color: rgb(var(--gray-dark));
+				font-size: 0.92em;
+				line-height: 1.55;
+				flex-grow: 1;
+			}
+			.card .tags { display: flex; flex-wrap: wrap; gap: 0.3em; margin-bottom: 0.6em; }
+			.card .tag {
+				background: rgb(var(--gray-light));
+				color: rgb(var(--gray-dark));
+				padding: 0.2em 0.7em;
+				border-radius: 999px;
+				font-size: 0.75em;
+				font-weight: 500;
+			}
+			.card footer {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				font-size: 0.8em;
+				color: rgb(var(--gray));
+				padding: 0;
+				background: none;
+			}
+			.card .range { margin: 0; }
+			.card .visit { color: var(--accent); font-weight: 600; }
+
+			.empty {
+				text-align: center;
+				padding: 3em 1em;
+				background: rgb(var(--gray-light));
+				border-radius: 14px;
+				color: rgb(var(--gray-dark));
+			}
+			.empty strong { display: block; margin-bottom: 0.3em; color: rgb(var(--black)); }
+			.empty a { color: var(--accent); font-weight: 600; }
 		</style>
 	</head>
 	<body>
 		<Header />
-		<main>
-			<div class="wrap">
+		<main class="projects-page">
+			<div class="head">
 				<h1>Projects</h1>
-				<p>A selection of things I've built — click through for more on each.</p>
-				<div class="cards">
-					{projects.map((p) => (
-						<article class="card">
-							<h3>{p.name}</h3>
-							<p>{p.description}</p>
-							<a href={p.link}>Learn more &rsaquo;</a>
-						</article>
-					))}
-				</div>
+				<p>Work highlights, experiments, and things I've shipped.</p>
 			</div>
+
+			{projects.length === 0 ? (
+				<div class="empty">
+					<strong>Projects list coming soon.</strong>
+					Meanwhile, the full history lives on my <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">LinkedIn profile →</a>
+				</div>
+			) : (
+				<div class="grid">
+					{projects.map((p) => {
+						const hasUrl = !!p.data.url;
+						const Tag = hasUrl ? 'a' : 'div';
+						return (
+							<Tag
+								class={`card ${p.data.featured ? 'featured' : ''}`}
+								href={p.data.url}
+								target={hasUrl ? '_blank' : undefined}
+								rel={hasUrl ? 'noopener noreferrer' : undefined}
+							>
+								<h3>{p.data.title}</h3>
+								{p.data.role && <p class="role">{p.data.role}</p>}
+								<p class="desc">{p.data.description}</p>
+								{p.data.tags.length > 0 && (
+									<div class="tags">
+										{p.data.tags.map((t) => <span class="tag">{t}</span>)}
+									</div>
+								)}
+								<footer>
+									{p.data.dateRange && <span class="range">{p.data.dateRange}</span>}
+									{hasUrl && <span class="visit">Visit &rsaquo;</span>}
+								</footer>
+							</Tag>
+						);
+					})}
+				</div>
+			)}
 		</main>
 		<Footer />
 		<Chatbot />

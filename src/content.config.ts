@@ -1,6 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { loadExternalPosts } from './loaders/externalPosts';
+import { loadYouTubeVideos } from './loaders/youtube';
 
 // Your own long-form posts, written as Markdown/MDX in src/content/blog/.
 const blog = defineCollection({
@@ -50,4 +51,54 @@ const external = defineCollection({
 	}),
 });
 
-export const collections = { blog, forbes, external };
+// YouTube videos — auto-fetched via the channel's Atom feed at build time.
+const videos = defineCollection({
+	loader: async () => {
+		const vids = await loadYouTubeVideos();
+		return vids.map((v) => ({
+			id: v.id,
+			videoId: v.videoId,
+			title: v.title,
+			url: v.url,
+			pubDate: v.pubDate.toISOString(),
+			description: v.description,
+			thumbnail: v.thumbnail,
+		}));
+	},
+	schema: z.object({
+		videoId: z.string(),
+		title: z.string(),
+		url: z.string().url(),
+		pubDate: z.coerce.date(),
+		description: z.string(),
+		thumbnail: z.string().url(),
+	}),
+});
+
+// Salesforce, AWS, and other certifications — manually curated markdown files.
+const certifications = defineCollection({
+	loader: glob({ base: './src/content/certifications', pattern: '**/*.md' }),
+	schema: z.object({
+		title: z.string(),
+		issuer: z.enum(['Salesforce', 'AWS', 'Other']),
+		dateEarned: z.coerce.date().optional(),
+		credentialUrl: z.string().url().optional(),
+		badgeUrl: z.string().url().optional(),
+	}),
+});
+
+// LinkedIn projects / work highlights — manually curated.
+const projects = defineCollection({
+	loader: glob({ base: './src/content/projects', pattern: '**/*.md' }),
+	schema: z.object({
+		title: z.string(),
+		description: z.string(),
+		url: z.string().url().optional(),
+		role: z.string().optional(),
+		dateRange: z.string().optional(), // e.g., "2022 – Present"
+		tags: z.array(z.string()).default([]),
+		featured: z.boolean().default(false),
+	}),
+});
+
+export const collections = { blog, forbes, external, videos, certifications, projects };
