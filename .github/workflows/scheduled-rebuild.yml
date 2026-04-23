@@ -1,0 +1,42 @@
+name: Scheduled rebuild (refresh external feeds)
+
+# Runs every 24h to trigger a Cloudflare Pages rebuild, which re-fetches
+# Medium + Blogger RSS feeds so new posts show up on /writing.
+#
+# Setup (one-time):
+#   1. Create a Cloudflare Pages Deploy Hook:
+#      Cloudflare dashboard → your Pages project → Settings → Builds & deployments
+#      → Deploy hooks → Add deploy hook → name it "scheduled-rebuild", branch "main"
+#   2. Copy the hook URL (looks like https://api.cloudflare.com/client/v4/pages/...)
+#   3. On GitHub: repo → Settings → Secrets and variables → Actions → New repository secret
+#      Name:  CLOUDFLARE_DEPLOY_HOOK
+#      Value: <paste the hook URL>
+
+on:
+  schedule:
+    # Every day at 06:00 UTC (= ~11:30am IST / 02:00 ET / midnight Pacific)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # allow manual trigger from the Actions tab
+
+jobs:
+  trigger-rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages deploy hook
+        env:
+          HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "::error::CLOUDFLARE_DEPLOY_HOOK secret is not set. See the workflow file header for setup steps."
+            exit 1
+          fi
+          echo "Triggering Cloudflare Pages rebuild..."
+          response=$(curl -sS -X POST -w "\n%{http_code}" "$HOOK_URL")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          echo "HTTP $http_code"
+          echo "$body"
+          if [ "$http_code" -ge 400 ]; then
+            echo "::error::Deploy hook failed with HTTP $http_code"
+            exit 1
+          fi

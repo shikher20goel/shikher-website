@@ -10,7 +10,10 @@
       "Bash(npm install *)",
       "Bash(npm run *)",
       "Bash(git config *)",
-      "Bash(winget --version)"
+      "Bash(winget --version)",
+      "WebFetch(domain:www.forbes.com)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:shikhergoel.blogspot.com)"
     ]
   }
 }
