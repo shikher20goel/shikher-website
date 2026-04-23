@@ -13,7 +13,10 @@
       "Bash(winget --version)",
       "WebFetch(domain:www.forbes.com)",
       "WebFetch(domain:medium.com)",
-      "WebFetch(domain:shikhergoel.blogspot.com)"
+      "WebFetch(domain:shikhergoel.blogspot.com)",
+      "WebFetch(domain:www.bing.com)",
+      "WebFetch(domain:duckduckgo.com)",
+      "WebFetch(domain:html.duckduckgo.com)"
     ]
   }
 }
