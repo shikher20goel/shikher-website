@@ -1,0 +1,8 @@
+# This file keeps the blog/ folder tracked in git even when no posts exist yet.
+# To add a post, create a file like `my-first-post.md` with frontmatter:
+#   ---
+#   title: "..."
+#   description: "..."
+#   pubDate: 2026-04-22
+#   ---
+# Then write your content below. See README.md for more.
